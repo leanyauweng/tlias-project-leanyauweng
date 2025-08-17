@@ -1,0 +1,173 @@
+-- ========================================
+-- Database: Student Management System
+-- Complete Schema + Sample Data (English + custom phone)
+-- ========================================
+
+-- =====================
+-- Dept 表（部门表）
+-- =====================
+CREATE TABLE IF NOT EXISTS `dept` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID,主键',
+  `name` varchar(20) NOT NULL COMMENT 'Department Name',
+  `create_time` datetime DEFAULT NULL COMMENT 'Created Time',
+  `update_time` datetime DEFAULT NULL COMMENT 'Updated Time',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Department Table';
+
+INSERT INTO dept (name, create_time) VALUES
+('Development', NOW()),
+('HR', NOW());
+
+-- =====================
+-- Emp 表（员工表）
+-- =====================
+CREATE TABLE IF NOT EXISTS `emp` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `username` varchar(20) NOT NULL COMMENT 'Username',
+  `password` varchar(32) DEFAULT '123456' COMMENT 'Password',
+  `name` varchar(20) NOT NULL COMMENT 'Name',
+  `gender` tinyint unsigned NOT NULL COMMENT 'Gender, 1 Male; 2 Female',
+  `phone` char(10) NOT NULL COMMENT 'Phone',
+  `job` tinyint unsigned DEFAULT NULL COMMENT 'Job Position',
+  `salary` int unsigned DEFAULT NULL COMMENT 'Salary',
+  `entry_date` date DEFAULT NULL COMMENT 'Entry Date',
+  `create_time` datetime DEFAULT NULL COMMENT 'Created Time',
+  `update_time` datetime DEFAULT NULL COMMENT 'Updated Time',
+  `image` varchar(255) DEFAULT NULL COMMENT 'Image',
+  `dept_id` int unsigned DEFAULT NULL COMMENT 'Department ID',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `phone` (`phone`),
+  KEY `fk_emp_dept` (`dept_id`),
+  CONSTRAINT `fk_emp_dept` FOREIGN KEY (`dept_id`) REFERENCES `dept` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Employee Table';
+
+INSERT INTO emp (username, password, name, gender, phone, job, salary, entry_date, dept_id)
+VALUES
+('johnsmith', '123456', 'John Smith', 1, '0101234567', 1, 8000, '2023-01-01', 1),
+('emilyjones', '123456', 'Emily Jones', 2, '0109876543', 2, 7000, '2023-02-01', 2);
+
+-- =====================
+-- Emp_expr 表（工作经历）
+-- =====================
+CREATE TABLE IF NOT EXISTS `emp_expr` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `begin_date` date DEFAULT NULL COMMENT 'Start Date',
+  `end_date` date DEFAULT NULL COMMENT 'End Date',
+  `company` varchar(50) DEFAULT NULL COMMENT 'Company',
+  `job` varchar(50) DEFAULT NULL COMMENT 'Position',
+  `emp_id` int unsigned DEFAULT NULL COMMENT 'Employee ID',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Employee Experience';
+
+INSERT INTO emp_expr (begin_date, end_date, company, job, emp_id)
+VALUES
+('2022-01-01', '2022-12-31', 'ABC Corp', 'Software Engineer', 1),
+('2022-02-01', '2022-12-31', 'XYZ Ltd', 'HR Specialist', 2);
+
+-- =====================
+-- Clazz 表（班级表）
+-- =====================
+CREATE TABLE IF NOT EXISTS `clazz` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `name` varchar(30) NOT NULL COMMENT 'Class Name',
+  `room` varchar(20) DEFAULT NULL COMMENT 'Room',
+  `begin_date` date NOT NULL COMMENT 'Start Date',
+  `end_date` date NOT NULL COMMENT 'End Date',
+  `master_id` int unsigned DEFAULT NULL COMMENT 'Class Master ID',
+  `subject` tinyint unsigned NOT NULL COMMENT 'Subject: 1:Java, 2:Frontend, etc.',
+  `create_time` datetime DEFAULT NULL COMMENT 'Created Time',
+  `update_time` datetime DEFAULT NULL COMMENT 'Updated Time',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Class Table';
+
+INSERT INTO clazz (name, room, begin_date, end_date, master_id, subject, create_time)
+VALUES
+('Java Class 01', '101', '2025-01-01', '2025-06-30', 1, 1, NOW()),
+('Frontend Class 01', '102', '2025-01-01', '2025-06-30', 2, 2, NOW());
+
+-- =====================
+-- Student 表（学员表）
+-- =====================
+CREATE TABLE IF NOT EXISTS `student` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID, Primary Key',
+  `name` varchar(10) NOT NULL COMMENT 'Name',
+  `no` char(10) NOT NULL COMMENT 'Student Number',
+  `gender` tinyint unsigned NOT NULL COMMENT 'Gender, 1:Male, 2:Female',
+  `phone` char(10) NOT NULL COMMENT 'Phone',
+  `address` varchar(100) DEFAULT NULL COMMENT 'Address',
+  `degree` tinyint unsigned DEFAULT NULL COMMENT 'Degree, 1-6',
+  `graduation_date` date DEFAULT NULL COMMENT 'Graduation Date',
+  `clazz_id` int unsigned NOT NULL COMMENT 'Class ID',
+  `violation_count` tinyint unsigned NOT NULL DEFAULT '0' COMMENT 'Violation Count',
+  `violation_score` tinyint unsigned NOT NULL DEFAULT '0' COMMENT 'Violation Score',
+  `create_time` datetime DEFAULT NULL COMMENT 'Created Time',
+  `update_time` datetime DEFAULT NULL COMMENT 'Updated Time',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `no` (`no`),
+  UNIQUE KEY `phone` (`phone`),
+  KEY `fk_student_clazz` (`clazz_id`),
+  CONSTRAINT `fk_student_clazz` FOREIGN KEY (`clazz_id`) REFERENCES `clazz` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Student Table';
+
+INSERT INTO student (name, no, gender, phone, address, degree, graduation_date, clazz_id, violation_count, violation_score, create_time)
+VALUES
+('Tom', '20250001', 1, '0101111222', 'New York, NY', 4, '2025-06-30', 1, 0, 0, NOW()),
+('Anna', '20250002', 2, '0103333444', 'Los Angeles, CA', 4, '2025-06-30', 2, 0, 0, NOW());
+
+-- =====================
+-- Student_records 表（违纪记录）
+-- =====================
+CREATE TABLE IF NOT EXISTS `student_records` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `student_id` int unsigned NOT NULL COMMENT 'Student ID',
+  `violation_date` date NOT NULL COMMENT 'Violation Date',
+  `violation_type` varchar(100) NOT NULL COMMENT 'Violation Type',
+  `description` text COMMENT 'Description',
+  `punishment_result` varchar(255) DEFAULT NULL COMMENT 'Punishment Result',
+  PRIMARY KEY (`id`),
+  KEY `fk_student_id` (`student_id`),
+  CONSTRAINT `fk_student_id` FOREIGN KEY (`student_id`) REFERENCES `student` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Student Violation Records';
+
+INSERT INTO student_records (student_id, violation_date, violation_type, description, punishment_result)
+VALUES
+(1, '2025-03-01', 'Late', 'Arrived 5 minutes late to class', 'Warning'),
+(2, '2025-03-02', 'Fight', 'Fought in the classroom', 'Detention');
+
+-- =====================
+-- Emp_log 表（员工操作日志表，空）
+-- =====================
+CREATE TABLE IF NOT EXISTS `emp_log` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `operate_time` datetime DEFAULT NULL COMMENT 'Operate Time',
+  `info` varchar(2000) DEFAULT NULL COMMENT 'Log Info',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Employee Log Table';
+
+-- =====================
+-- Student_log 表（学员操作日志表，空）
+-- =====================
+CREATE TABLE IF NOT EXISTS `student_log` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `operate_time` datetime DEFAULT NULL COMMENT 'Operate Time',
+  `info` varchar(2000) DEFAULT NULL COMMENT 'Log Info',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Student Log Table';
+
+-- =====================
+-- Operate_log 表（操作日志表，空）
+-- =====================
+CREATE TABLE IF NOT EXISTS `operate_log` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `operate_emp_id` int NOT NULL COMMENT 'Operate Employee ID',
+  `operate_time` datetime NOT NULL COMMENT 'Operate Time',
+  `class_name` varchar(255) DEFAULT NULL COMMENT 'Class Name',
+  `method_name` varchar(255) DEFAULT NULL COMMENT 'Method Name',
+  `method_params` text COMMENT 'Method Params',
+  `return_value` text COMMENT 'Return Value',
+  `cost_time` bigint DEFAULT NULL COMMENT 'Cost Time(ms)',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Operate Log Table';
